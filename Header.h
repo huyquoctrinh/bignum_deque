@@ -22,4 +22,8 @@ int bitshift_right(bigint a, int unit);
 int bitshift_left(bigint a, int unit);
 bigint not_operator(bigint a);
 int mod(bigint a, int n);
+bigint multiply(bigint a, bigint b);
+int compare(bigint a, bigint b);
+bigint divide(bigint number, int divisor);
+bigint dec2bin(bigint n);
 #pragma once

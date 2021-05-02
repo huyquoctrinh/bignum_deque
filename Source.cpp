@@ -16,7 +16,11 @@ string ReverseString(string s)
 int getLength(bigint a) {
 	return a.data.size();
 }
-
+bigint int2bigint(int n) {
+    bigint res;
+    res.data.push_back(n);
+    return res;
+}
 void Set(bigint& a) {
 	while (a.data.size() > 1 && a.data.back() == 0) a.data.pop_back();
 }
@@ -162,5 +166,98 @@ int mod(bigint a, int n)
     for (int i = 0; i < l; i++)
         res = (res * 10 + a.data[i]) % n;
 
+    return res;
+}
+bigint multiply(bigint a, bigint b)
+{
+    int l1 = getLength(a);
+    int l2 = getLength(b);
+    deque<int> result(l1 + l2, 0);
+    int i_n1 = 0;
+    int i_n2 = 0;
+    for (int i = l1 - 1; i >= 0; i--)
+    {
+        int buffer = 0;
+        int n1 = getDigit(a, i);
+        i_n2 = 0;          
+        for (int j = l2 - 1; j >= 0; j--)
+        {
+            int n2 = getDigit(b,j);
+            int sum = n1 * n2 + result[i_n1 + i_n2] + buffer;
+            buffer = sum / 10;
+            result[i_n1 + i_n2] = sum % 10;
+            i_n2++;
+        }
+        if (buffer > 0)
+            result[i_n1 + i_n2] += buffer;
+        i_n1++;
+    }
+    int i = result.size() - 1;
+    while (i >= 0 && result[i] == 0)
+        i--;
+    if (i == -1) {
+        bigint r;
+        r.data = { 0 };
+        return r;
+    }
+
+    bigint res;
+    res.data = result;
+    res.data.pop_back();
+    reverse(res.data.begin(), res.data.end());
+    return res;
+}
+bigint divide(bigint number, int divisor)
+{
+    bigint res;
+    int idx = 0;
+    int temp = getDigit(number,idx);
+    while (temp < divisor) {
+        ++idx;
+        temp = temp * 10 + getDigit(number, idx);
+        
+    }
+    while (getLength(number) > idx) {
+        res.data.push_back(temp / divisor);
+        temp = temp%divisor * 10 + getDigit(number,idx); 
+        ++idx;
+    }
+    if (getLength(res) == 0) {
+        res.data = { 0 };
+        return res;
+    }
+    return res;
+}
+int compare(bigint a, bigint b) {
+    int l1 = getLength(a);
+    int l2 = getLength(b);
+    if (l1 > l2) {
+        return 1;
+    }
+    else if (l1 < l2) {
+        return -1;
+    }
+    else if (l1 == l2) {
+        for (int i = 0; i < l1; i++) {
+            if (a.data[i] > b.data[i]) {
+                return 1;
+            }
+            else if (a.data[i] < b.data[i]) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+    
+}
+bigint dec2bin(bigint n){
+    bigint res,tmp;
+    tmp.data = { 0 };
+    int i = 0;
+    while (compare(n,tmp)==1) {
+        res.data.push_back(mod(n,2));
+        n = divide(n, 2);
+        i++;
+    }
     return res;
 }
