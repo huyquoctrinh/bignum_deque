@@ -31,4 +31,7 @@ bigint int2bigint(int n);
 bigint subtract_step(bigint a, bigint b);
 bigint substract(bigint a, bigint b);
 bigint abs_big(bigint a);
+void equal(bigint& a, bigint& b);
+int compare_full(bigint a, bigint b);
+bool check_dau(bigint a, bigint b);
 #pragma once

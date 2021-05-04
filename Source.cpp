@@ -395,12 +395,28 @@ bigint substract(bigint a, bigint b) {
     return subtract_step(a, b);
 
 }
-bigint abs_big(bigint a) {
-    if (a.dau == 0) {
-        a.dau = 1;
-        return a;
+void equal(bigint& a, bigint& b) {
+    b.data = a.data;
+    b.dau = a.dau;
+}
+int compare_full(bigint a,bigint b) {
+    if (check_dau(a, b)) {
+        if (compare(a, b) == 1) {
+            return 1;
+        }
+        else if (compare(a, b) == -1) {
+            return -1;
+        }
+        else if (compare(a, b) == 0) {
+            return 0;
+        }
     }
-    else {
-        return a;
+    else if (!check_dau(a,b)) {
+        if ((a.dau == 1) && (b.dau == 0)) {
+            return 1;
+        }
+        else if ((a.dau == 0) && (b.dau == 1)) {
+            return -1;
+        }
     }
 }
