@@ -7,6 +7,30 @@
 #include <sstream>
 #include <iterator>
 using namespace std;
+void output(bigint a) {
+    if (a.dau == 0) {
+        cout << "-";
+    }
+    for (auto i : a.data) {
+        cout << i;
+    }
+
+}
+bool check_dau(bigint a,bigint b) {
+    if ((a.dau == 0) && (b.dau == 0)) {
+        return true;
+    }
+    else if ((a.dau == 0) && (b.dau == 1)) {
+        return false;
+    }
+    else if ((a.dau == 1) && (b.dau == 0)) {
+        return false;
+    }
+    else if ((a.dau == 1) && (b.dau == 1)) {
+        return true;
+    }
+    return true;
+}
 string ReverseString(string s)
 {
     string sTemp = s;
@@ -28,9 +52,20 @@ void Set(bigint& a) {
 bigint string2bigint(string s) {
     bigint res;
     int l = s.length();
-    for (int i = 0; i < l; i++) {
-        res.data.push_back(int(s[i]-48));
+
+    if (s[0] == '-') {
+        res.dau = 0;
+        for (int i = 1; i < l; i++) {
+            res.data.push_back(int(s[i] - 48));
+        }
     }
+    else if ((s[0] != '-') || (s[0] == '+')) {
+        res.dau = 1;
+        for (int i = 0; i < l; i++) {
+            res.data.push_back(int(s[i] - 48));
+        }
+    }
+
     return res;
 }
 
@@ -43,11 +78,19 @@ string bigint2string(bigint a) {
             res = res + to_string(a.data[i]-48);
         }
     }
+    if (a.dau == 0) {
+        res = "-" + res;
+    }
     return res;
 }
 
 int getDigit(bigint a,int pos) {
+    int n = getLength(a);
+    if (pos >= n) {
+        return -1;
+    }       
     return a.data[pos];
+
 }
 void make_equal(bigint& a, bigint& b) {
     int n = getLength(b);
@@ -93,7 +136,7 @@ bigint add_bin(bigint a, bigint b) {
     }
     return res;
 }
-bigint add_dec(bigint a, bigint b) {
+bigint add_dec_step(bigint a, bigint b) {
     bigint res;
     int la = getLength(a);
     int lb = getLength(b);
@@ -112,6 +155,23 @@ bigint add_dec(bigint a, bigint b) {
         }
     }
     return res;
+}
+bigint add_dec(bigint a, bigint b) {
+    if ((a.dau==1) &&(b.dau==1)) {
+        return add_dec_step(a, b);
+    }
+    else if ((a.dau==1)&&(b.dau==0)) {
+        return substract(a, b);
+    }
+    else if ((a.dau == 0) && (b.dau == 1)) {
+        return substract(b, a);
+    }
+    else if ((a.dau == 0) && (b.dau == 0)) {
+        bigint res;        
+        res = add_dec_step(a, b);
+        res.dau = 0;
+        return res;
+    }
 }
 int bin2dec(bigint n) {
     int dec_value = 0;
@@ -164,7 +224,7 @@ int mod(bigint a, int n)
     int res = 0;
     int l = getLength(a);
     for (int i = 0; i < l; i++)
-        res = (res * 10 + a.data[i]) % n;
+        res = (res * 10 + getDigit(a,i)) % n;
 
     return res;
 }
@@ -172,6 +232,19 @@ bigint multiply(bigint a, bigint b)
 {
     int l1 = getLength(a);
     int l2 = getLength(b);
+    bigint res;
+    if ((a.dau == 0) && (b.dau == 0)) {
+        res.dau = 1;
+    }
+    else if ((a.dau == 0) && (b.dau ==1)) {
+        res.dau = 0;
+    }
+    else if ((a.dau ==1) && (b.dau == 0)) {
+        res.dau = 0;
+    }
+    else if ((a.dau ==1) && (b.dau ==1)) {
+        res.dau = 1;
+    }
     deque<int> result(l1 + l2, 0);
     int i_n1 = 0;
     int i_n2 = 0;
@@ -201,30 +274,54 @@ bigint multiply(bigint a, bigint b)
         return r;
     }
 
-    bigint res;
+    
     res.data = result;
     res.data.pop_back();
     reverse(res.data.begin(), res.data.end());
     return res;
 }
-bigint divide(bigint number, int divisor)
+bigint divide_step(bigint number, int divisor)
 {
     bigint res;
     int idx = 0;
-    int temp = getDigit(number,idx);
+    int temp = getDigit(number, idx);
     while (temp < divisor) {
         ++idx;
+        if (getDigit(number, idx) == -1) {
+            res.data = { temp/divisor };
+            return res;
+        }
         temp = temp * 10 + getDigit(number, idx);
-        
+
     }
     while (getLength(number) > idx) {
         res.data.push_back(temp / divisor);
-        temp = temp%divisor * 10 + getDigit(number,idx); 
         ++idx;
+        if (getDigit(number, idx) == -1) {
+            return res;
+        }
+        temp = temp % divisor * 10 + getDigit(number, idx);
+        
     }
     if (getLength(res) == 0) {
         res.data = { 0 };
         return res;
+    }
+}
+bigint divide(bigint a, int divisor) {
+    bigint res;
+    res = divide_step(a, divisor);
+    if ((a.dau == 0) && (divisor < 0)) {
+        res.dau = 1;
+    }
+    else if ((a.dau == 0) && (divisor > 0)) {
+        res.dau = 0;
+    }
+    else if ((a.dau == 1) && (divisor < 0)) {
+        res.dau = 0;
+    }
+    else if ((a.dau == 1) && (divisor > 0)) {
+        res.dau = 1;
     }
     return res;
 }
@@ -250,14 +347,60 @@ int compare(bigint a, bigint b) {
     }
     
 }
+
 bigint dec2bin(bigint n){
-    bigint res,tmp;
+    bigint res, tmp;
     tmp.data = { 0 };
-    int i = 0;
-    while (compare(n,tmp)==1) {
-        res.data.push_back(mod(n,2));
+    while (compare(n, tmp) == 1) {
+        res.data.push_front(mod(n, 2));
         n = divide(n, 2);
-        i++;
     }
     return res;
+}
+bigint subtract_step(bigint a, bigint b) {
+    bigint res;
+    int la = getLength(a);
+    int lb = getLength(b);
+    int buffer = 0;
+    int l = makeEqualLength(a, b);
+    for (int i = l-1; i >=0; i--) {
+        int fbit = getDigit(a, i);
+        int sbit = getDigit(b, i);
+        sbit = sbit + buffer;
+        if (fbit < sbit) {
+            fbit +=10;
+            buffer = 1;
+        }
+        else {
+            buffer = 0;
+        }
+        int sum = fbit - sbit;
+        res.data.push_front(sum);
+    }
+    return res;
+}
+bigint substract(bigint a, bigint b) {
+    bigint res;
+    int check = compare(a, b);
+    if (check == 1) {
+        res = subtract_step(a, b);
+    }
+    else if (check == 0) {
+        return subtract_step(a, b);
+    }
+    else if (check == -1) {
+        res = subtract_step(a, b);
+        res.dau = 0;
+    }
+    return subtract_step(a, b);
+
+}
+bigint abs_big(bigint a) {
+    if (a.dau == 0) {
+        a.dau = 1;
+        return a;
+    }
+    else {
+        return a;
+    }
 }

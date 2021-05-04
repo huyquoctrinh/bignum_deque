@@ -8,7 +8,7 @@
 #include <iterator>
 using namespace std;
 struct bigint {
-	int length;
+	bool dau;
 	deque<int> data;
 };
 int getLength(bigint a);
@@ -26,4 +26,9 @@ bigint multiply(bigint a, bigint b);
 int compare(bigint a, bigint b);
 bigint divide(bigint number, int divisor);
 bigint dec2bin(bigint n);
+void output(bigint a);
+bigint int2bigint(int n);
+bigint subtract_step(bigint a, bigint b);
+bigint substract(bigint a, bigint b);
+bigint abs_big(bigint a);
 #pragma once
